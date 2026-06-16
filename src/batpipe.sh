@@ -137,7 +137,10 @@ fi
 BATPIPE_PARENT_EXECUTABLE_PID="$PPID"
 for i in 1 2 3; do
 	BATPIPE_PARENT_EXECUTABLE="${BATPIPE_DEBUG_PARENT_EXECUTABLE:-$(parent_executable "$BATPIPE_PARENT_EXECUTABLE_PID")}"
-	BATPIPE_PARENT_EXECUTABLE_BASENAME="$(basename -- "${BATPIPE_PARENT_EXECUTABLE}" | cut -d' ' -f1)"
+	# Take the executable (first space-separated token) before the basename, so a
+	# parent like "less /home/user/file.txt" resolves to "less" and not the file.
+	# This assumes the path to the executable itself contains no spaces.
+	BATPIPE_PARENT_EXECUTABLE_BASENAME="$(basename -- "$(cut -d' ' -f1 <<< "${BATPIPE_PARENT_EXECUTABLE}")")"
 	BATPIPE_PARENT_EXECUTABLE_PID="$(parent_executable_pid "$BATPIPE_PARENT_EXECUTABLE_PID")"
 
 	if [[ "${BATPIPE_PARENT_EXECUTABLE_BASENAME}" = "less" ]]; then
